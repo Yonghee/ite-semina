@@ -1,0 +1,82 @@
+
+
+* 성적표 읽기
+```{r}
+score<- read.csv("./record.csv",header=T)
+```
+
+### 5 word summary가 부족하다면...
+```{r}
+library(pastecs)
+stat.desc(score[,2:4])
+```
+
+
+### 차트를 그려보자
+```{r}
+library("reshape2")
+score.melted <- melt(score,id.vars=c("subject"))
+colnames(score.melted) <- c("subject","name","score")
+str(score.melted)
+```
+
+```{r}
+library(ggplot2)
+
+#stacked bar chart를 그립니다.
+ggplot(data = score.melted, aes(x = subject, y = score, fill = name)) + 
+       geom_bar(stat = "identity") + xlab("subject") 
+
+boxplot(score ~ name, data=score.melted, main="Score Analysis")
+```
+
+```{r}
+par(mfrow = c(1,2))
+set.seed(1234)
+x <- rnorm(10000,mean=0,sd=1)
+hist(x
+     ,probability=T
+     ,xlim=c(-10,10)
+     ,main="Histogram of SD=1")
+lines(density(x,bw=.5),col="blue",lwd=2)
+
+set.seed(1234)
+y <- rnorm(10000,mean=0,sd=4)
+hist(y
+     ,probability=T
+     ,xlim=c(-10,10)
+     ,main="Histogram of SD=4")
+lines(density(y,bw=.5),col="red",lwd=2)
+```
+
+
+```{r}
+library(reshape)
+mystats<- function(x)(c(n=length(x), mean=mean(x), sd=sd(x)))
+mysummary <- cast(score.melted, name ~ .,value=c("score"), mystats)
+mysummary
+```
+
+
+```{r}
+png("plot.png",width=400, height=300)
+salary <- read.csv("salary.csv")
+plot(salary,xlim=c(2000,2015),ylim=c(2000,10000))
+dev.off()
+
+myModel <- lm(salary ~ year , data=salary)
+fit <- lm(salary ~ year,data=salary)
+fit
+```
+
+```{r}
+newYear <- c(2015,2016,2017,2018)
+predict(fit, newdata = data.frame(year=newYear))
+```
+```{r}
+library(ggplot2)
+ggplot(salary, aes(x=year, y=salary)) +
+    geom_point(shape=1) + 
+    geom_smooth(method=lm, 
+                se=TRUE) 
+```
