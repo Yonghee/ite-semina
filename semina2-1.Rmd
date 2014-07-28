@@ -80,3 +80,20 @@ ggplot(salary, aes(x=year, y=salary)) +
     geom_smooth(method=lm, 
                 se=TRUE) 
 ```
+
+
+
+## 스팸 메일 분류하기
+* Title: logistic regression spam model 를 이용해서 스팸 추정하기 
+```{r}
+
+spamD <- read.table('./data/spamD.tsv',header=T,sep='\t')
+spamTrain <- subset(spamD,spamD$rgroup>=10)
+spamTest <- subset(spamD,spamD$rgroup<10)
+spamVars <- setdiff(colnames(spamD),list('rgroup','spam'))
+spamFormula <- as.formula(paste('spam=="spam"', paste(spamVars,collapse=' + '),sep=' ~ '))
+spamModel <- glm(spamFormula,family=binomial(link='logit'), data=spamTrain)
+spamTrain$pred <- predict(spamModel,newdata=spamTrain, type='response')
+spamTest$pred <- predict(spamModel,newdata=spamTest, type='response')
+print(with(spamTest,table(y=spam,glmPred=pred>0.5)))
+```
